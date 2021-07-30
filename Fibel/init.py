@@ -14,9 +14,9 @@ import threading
 
 #global g,default_voice,font,img_author,lexikon_dir,root_dir,topic_dir,lesson_dir,deck_dir,max_labels,driver,pointers,pointer,lock,loaded_foliae,folio_links,active_label,start_load,fa,labels,default_voice,title_height
 
-def init(voice='ddh',script='schola',illustrator='',root='/home/fibel/Primer_v1/',lexikon='/home/fibel/Primer_v1/Lexikon/',curriculum='Lesen',thema='Tiere',lesson='1',folio_amount=10,label_height=100,screen="front"):
+def init(voice='ddh',script='schola',illustrator='',root='/home/fibel/data/teacher/',lexikon='/home/fibel/data/teacher/Lexikon/',curriculum='Lesen',thema='Tiere',lesson='1',folio_amount=10,label_height=100,screen="front",gesture_active=True):
     #have to do this horrible assigments because of the bloody-blood 'name "whatever" is parameter and global' error
-    global g,default_voice,font,img_author,lexikon_dir,root_dir,topic_dir,lesson_dir,deck_dir,max_labels,driver,pointers,pointer,lock,loaded_foliae,folio_links,active_label,start_load,fa,labels,default_voice,title_height
+    global gesture,default_voice,font,img_author,lexikon_dir,root_dir,topic_dir,lesson_dir,deck_dir,max_labels,driver,pointers,pointer,lock,loaded_foliae,folio_links,active_label,start_load,fa,labels,default_voice,title_height,session_id
     default_voice=voice
     font=script
     img_author=illustrator
@@ -25,7 +25,7 @@ def init(voice='ddh',script='schola',illustrator='',root='/home/fibel/Primer_v1/
     topic_dir=root_dir+'/'+curriculum+'/'+thema
     lesson_dir=topic_dir+'/Lectiones/'+lesson+'/'
     deck_dir=lesson_dir+'Deck/'
-    print(deck_dir)
+    #print(deck_dir)
     max_labels=folio_amount
     title_height=label_height
     #ACTIVATE AUDIO
@@ -54,12 +54,15 @@ def init(voice='ddh',script='schola',illustrator='',root='/home/fibel/Primer_v1/
     #ACTIVATE AUDIO
     #fa=fibelaudio()
     #fa.run()
-    print(screen)
+    #print(screen)
+    if not gesture_active:
+        print('no gest')
+        return
     if screen=='back':
-        busno=3
+        busno=1
     else:
         busno=1
     try:
-        g=gesture(busno=busno,caseflag=1)
+        gesture=gesture(busno=busno,caseflag=1)
     except:
         sys.stderr.write("NO SENSOR at "+str(busno))

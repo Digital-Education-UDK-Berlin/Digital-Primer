@@ -42,7 +42,7 @@ class ImageText(object):
             font_size += 1
             text_size = self.get_text_size(font, font_size, text)
 
-    def write_text(self, x, y, text, font_filename='/home/fibel/Primer_v1/Fonts/schola.otf', font_size=11,
+    def write_text(self, x, y, text, font_filename='/home/fibel/data/teacher/Fonts/schola.otf', font_size=11,
                    max_width=None, max_height=None, color=(0, 0, 0)):
         #if isinstance(text, str):
         #    text = text.decode(self.encoding)

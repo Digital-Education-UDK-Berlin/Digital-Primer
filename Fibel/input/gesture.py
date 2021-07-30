@@ -446,7 +446,7 @@ class gesture:
                                 print("F") if self.case else "f"
                                 time.sleep(self.GES_QUIT_TIME)
                         elif data == self.GES_BACKWARD_FLAG:
-                                print(ba)
+                                #print(ba)
                                 time.sleep(self.GES_QUIT_TIME)
                         else:
                                 print("D") if self.case else "d"
@@ -495,7 +495,7 @@ class gesture:
                 #                print "W" if self.case else "w"
 
         def get_gesture(self):
-                print(str(self.busnum))
+                #print(str(self.busnum))
                 data=self.paj7620ReadReg(0x43,1)[0]
                 if data==1:
                     if self.busnum==3:
@@ -526,6 +526,6 @@ class gesture:
                     else:
                         return("L")
                 else:
-                    return(" ")
+                    return('')
 
 

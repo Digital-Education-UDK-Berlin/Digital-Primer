@@ -1,0 +1,10 @@
+grove.py==0.6
+Pillow==7.1.2
+PyAudio==0.2.11
+rpi-ws281x==4.2.3
+RPi.GPIO==0.7.0
+simpleaudio==1.0.4
+smbus==1.1.post2
+smbus2==0.3.0
+spidev==3.5
+Wave==0.0.2

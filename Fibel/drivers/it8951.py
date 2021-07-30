@@ -1,5 +1,7 @@
 from PIL import Image
-from Fibel.drivers.drivers_base import DisplayDriver
+#from Fibel.drivers.drivers_base import DisplayDriver
+import os
+
 import array
 import struct
 import time
@@ -10,6 +12,21 @@ try:
 except ImportError:
     pass
 
+
+import importlib.util
+from pathlib import Path
+import inspect
+
+full_path = os.path.dirname(os.path.abspath(__file__))
+rootpath = (str(Path(full_path).parents[1]))
+spec = importlib.util.spec_from_file_location("drivers_base", rootpath + str("/Fibel/drivers/drivers_base.py"))
+foo = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(foo)
+
+for member in inspect.getmembers(foo):
+    if member[0] == "DisplayDriver":
+        DisplayDriver = member[1]
+
 class IT8951(DisplayDriver):
     """A generic driver for displays that use a IT8951 controller board.
 
@@ -18,7 +35,7 @@ class IT8951(DisplayDriver):
 
     SCREEN = "front"
 
-    RST_PIN = 17
+    RST_PIN = 27
     #default pins will be used if the init() method does not command otherwise
     CS_PIN = 8
     BUSY_PIN = 24
@@ -184,16 +201,16 @@ class IT8951(DisplayDriver):
             self.RST_PIN =27
             self.ROTATE=self.ROTATE_90
         else:
-            self.ROTATE=rotate 
+            self.ROTATE=rotate
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(self.RST_PIN, GPIO.OUT)
         GPIO.setup(self.CS_PIN, GPIO.OUT)
         GPIO.setup(self.BUSY_PIN, GPIO.IN)
         self.SPI = spidev.SpiDev(0, 0)
-        self.SPI.max_speed_hz = 6000000
+        self.SPI.max_speed_hz = 12000000
         self.SPI.mode = 0b00
-
+        print("RESET PIN is "+str(self.RST_PIN))
         # It is unclear why this is necessary but it appears to be. The sample
         # code from WaveShare [1] manually controls the CS bin and has its state
         # span multiple SPI operations.
@@ -263,7 +280,7 @@ class IT8951(DisplayDriver):
         self.write_data_half_word(w)
         self.write_data_half_word(h)
         self.write_data_half_word(display_mode)
-        self.write_data_half_word(buff_addr) 
+        self.write_data_half_word(buff_addr)
         self.write_data_half_word(buff_addr >> 16)
         #print("displaying from address "+str(buff_addr))
 
@@ -292,7 +309,7 @@ class IT8951(DisplayDriver):
 
         self.write_data_bytes(self.pack_image(image))
         self.write_command(self.CMD_LOAD_IMAGE_END);
- 
+
     def load_image_segment(self, x, y, image, width, height, update_mode_override=None, img_addr=None):
         if img_addr is None: img_addr=self.img_addr
 
@@ -316,7 +333,7 @@ class IT8951(DisplayDriver):
         #next line may contain a bug
         self.write_data_bytes(self.pack_image(image.convert('1').crop((0,0,width,height))))
         self.write_command(self.CMD_LOAD_IMAGE_END);
-                        
+
 
     def draw(self, x, y, image, update_mode_override=None):
         width = image.size[0]
@@ -407,4 +424,3 @@ class IT8951(DisplayDriver):
                 packed_buffer += [(frame_buffer[i] >> 4) | (frame_buffer[i + 1] & 0xF0)]
 
             return packed_buffer
-

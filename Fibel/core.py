@@ -10,21 +10,21 @@ def cover():
     driver.display_buffer_area(0,0,800,600,2,pointer)
     sa.WaveObject.from_wave_read(wave.open(root_dir+'Audio/Titles/Epoche_1-ddh', 'rb')).play()
     time.sleep(2.35)
-    driver.display_buffer_area(0,0,70,600,2,pointer)
+    driver.display_buffer_area(730,0,70,600,2,pointer)
     sa.WaveObject.from_wave_read(wave.open(root_dir+'Audio/Words/lesen/-ddh', 'rb')).play()
     time.sleep(1.84)
-    driver.display_buffer_area(60,0,140,600,2,pointer)
+    driver.display_buffer_area(600,0,140,600,2,pointer)
     sa.WaveObject.from_wave_read(wave.open(root_dir+'Audio/Titles/Thema_1-ddh', 'rb')).play()
     time.sleep(2.6)
-    driver.display_buffer_area(200,0,80,600,2,pointer)
+    driver.display_buffer_area(520,0,80,600,2,pointer)
     sa.WaveObject.from_wave_read(wave.open(root_dir+'Audio/Words/Tiere/-ddh', 'rb')).play()
     time.sleep(1.83)
-    driver.display_buffer_area(270,0,140,600,2,pointer)
+    driver.display_buffer_area(390,0,140,600,2,pointer)
     sa.WaveObject.from_wave_read(wave.open(root_dir+'Audio/Titles/Lektion_1-ddh', 'rb')).play()
     time.sleep(2.6)
-    driver.display_buffer_area(600,0,200,600,2,pointer)
+    driver.display_buffer_area(0,0,200,600,2,pointer)
 
-def load_foliae(voice=default_voice):
+def load_foliae(voice='ddh'):
     global pointer,loaded_foliae,active_label
     pointer=driver.img_addr+(2*driver.width*driver.height+1)
     for folio_link in folio_links:
@@ -73,7 +73,50 @@ def fallback_play(cursor,voice):
             except:
                 sys.stderr.write("could not play "+labels[cursor])
 
-def imitate(voice=default_voice):
+def lesen(name,labels):
+    global fa
+    if 'fa' not in globals():
+      fa=fibelaudio()
+      fa.run()
+    #displaying first folio
+    cursor=0
+    fa.active_label=name+'-'+name
+    text_image = ImageText((600,200), background=(255,255,255))
+    text_image.write_text(20,0,name, font_size='fill', max_height=200, max_width=560,color=(0,0,0))
+
+    driver.load_image(0,100,text_image.image,img_addr=driver.img_addr)
+    driver.display_buffer_area(0,0,800,600,2,driver.img_addr)
+
+    #fallback_play(cursor,voice)
+
+    old_audiofile=""
+    session_start=time.time()
+    fa.label_displayed=session_start
+    print('#SESSION#'+name+'#'+str(session_start))
+
+    while(True):
+        #when recording was successful show new folio
+        if fa.last_audiofile and fa.last_audiofile!=old_audiofile:
+            print(cursor)
+            if cursor<len(labels):
+                print(labels[cursor])
+                text_image = ImageText((600,200), background=(255,255,255))
+                text_image.write_text(20,0,labels[cursor], font_size='fill', max_height=200, max_width=560,color=(0,0,0))
+                driver.load_image(0,100,text_image.image,img_addr=driver.img_addr)
+                driver.display_buffer_area(0,0,800,600,1,driver.img_addr)
+                #fallback_play(cursor,voice)
+                fa.label_displayed=time.time()
+                fa.active_label=labels[cursor]+'-'+name.upper()
+                fa.last_audiofile=""
+                time.sleep(0.2)
+                cursor+=1
+            else:
+                fa.last_audiofile=''
+                print('#ENDSESSION#'+str(session_start)+'#'+name+'#'+str(time.time()-session_start))
+                break
+
+
+def imitate(voice='ddh'):
     global fa
     fa=fibelaudio()
     fa.run()
@@ -112,11 +155,12 @@ def feedback_negative():
     sa.WaveObject.from_wave_read(wave.open(root_dir+'Audio/Feedback/Neg/qwack-tm.wav', 'rb')).play()
 
 def feedback_positive():
+    sa.WaveObject.from_wave_read(wave.open('dankelia.wav', 'rb')).play()
     #sa.WaveObject.from_wave_read(wave.open('Audio/Feedback/Pos/juhuu-tm.wav', 'rb')).play()
     l=1
 
-def zuordnen1(voice=default_voice,title_height=100,variable='up',screen='front'):
-    global active_screen
+def zuordnen1(voice='ddh',title_height=100,variable='up',screen='front'):
+    global active_screen,gesture
     for true_cursor in range(0,len(labels)):
         task_start=time.time()
         driver.display_buffer_area(title_height,0,800-title_height,600,2,pointers[labels[true_cursor]]["folio"])
@@ -136,7 +180,7 @@ def zuordnen1(voice=default_voice,title_height=100,variable='up',screen='front')
             else:
                 driver.display_buffer_area(0,0,title_height,600,1,pointers[labels[false_cursor]]["folio"])
         while(True):
-            cmd=g.get_gesture()
+            cmd=gesture.get_gesture()
             #print(cmd)
             #print(g.busnum)
             if cmd=='C' or cmd=='A':
@@ -175,5 +219,3 @@ def zuordnen1(voice=default_voice,title_height=100,variable='up',screen='front')
 def randomString(stringLength):
     letters = string.ascii_letters
     return ''.join(choice(letters) for i in range(stringLength))
-
-
